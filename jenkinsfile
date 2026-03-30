@@ -1,32 +1,29 @@
 pipeline {
     agent any
 
-    environment {
-        BUCKET = "edwin-html-site"
-        REGION = "ap-south-1"
-    }
-
     stages {
         stage('Build') {
             steps {
                 echo 'Building...'
+                // Add your actual build commands here
+                // Example: mvn package OR npm run build
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Testing...'
+                // Add your test commands here
+                // Example: mvn test OR npm test
             }
         }
 
         stage('Deploy to S3') {
             steps {
-                echo 'Deploying to S3...'
-
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-s3-creds']]) {
                     sh '''
-                    aws configure set default.region $REGION
-                    aws s3 sync . s3://$BUCKET --delete
+                        # Upload everything from the Jenkins workspace "Sha" folder to your S3 bucket
+                        aws s3 cp /var/lib/jenkins/workspace/Sha/ s3://shapipe/ --recursive
                     '''
                 }
             }
