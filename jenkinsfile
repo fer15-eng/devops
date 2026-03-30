@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        BUCKET = "edwin-html-site"
+        REGION = "ap-south-1"
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -14,9 +19,16 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to S3') {
             steps {
-                echo 'Deploying...'
+                echo 'Deploying to S3...'
+
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-s3-creds']]) {
+                    sh '''
+                    aws configure set default.region $REGION
+                    aws s3 sync . s3://$BUCKET --delete
+                    '''
+                }
             }
         }
     }
